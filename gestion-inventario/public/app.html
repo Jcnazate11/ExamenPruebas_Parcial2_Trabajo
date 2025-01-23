@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Gestión</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <!-- CSS Interno -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      background-color: #ECF0F1; /* Fondo claro */
+    }
+
+    /* Barra lateral */
+    .sidebar {
+      width: 250px;
+      background-color: #2C3E50; /* Azul oscuro */
+      color: white;
+      padding: 20px;
+      position: fixed;
+      height: 100%;
+      top: 0;
+      left: 0;
+      text-align: center;
+    }
+
+    /* Titulo en la barra lateral */
+    .sidebar h2 {
+      font-size: 24px;
+      margin-bottom: 30px;
+      color: white;
+    }
+
+    .sidebar ul {
+      list-style-type: none;
+    }
+
+    /* Estilo para los botones de la barra lateral */
+    .sidebar li {
+      padding: 15px;
+      cursor: pointer;
+      border-bottom: 1px solid #34495E; /* Azul más claro */
+      background-color: white;  /* Fondo blanco para los botones */
+      color: #34495E; /* Texto azul oscuro */
+      border-radius: 4px; /* Bordes redondeados */
+      margin-bottom: 10px;
+    }
+
+    /* Cambiar el color de los botones al pasar el mouse */
+    .sidebar li:hover {
+      background-color: #3498DB; /* Azul brillante */
+      color: white; /* Texto blanco cuando se pasa el mouse */
+    }
+
+    .sidebar i {
+      margin-right: 10px;
+    }
+
+    /* Contenido */
+    .content {
+      margin-left: 260px;
+      padding: 20px;
+      width: 100%;
+      background-color: #ECF0F1; /* Fondo claro */
+    }
+
+    h2 {
+      color: #34495E; /* Texto oscuro */
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section input, .section button {
+      padding: 10px;
+      margin: 10px 0;
+      width: 100%;
+      font-size: 16px;
+      border-radius: 4px;
+    }
+
+    /* Estilo para inputs de texto */
+    .section input[type="text"], .section input[type="number"], .section input[type="email"], .section select {
+      border: 1px solid #BDC3C7; /* Borde gris claro */
+    }
+
+    /* Estilo para los botones */
+    .section button {
+      background-color: #3498DB; /* Azul brillante */
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    /* Efecto hover en los botones */
+    .section button:hover {
+      background-color: #2980B9; /* Azul más oscuro al pasar el mouse */
+    }
+
+    /* Botones de Eliminar y Modificar en las tablas */
+    table button {
+      padding: 5px 10px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Estilo para el botón de eliminar */
+    table button.eliminar {
+      background-color: #E74C3C; /* Rojo para eliminar */
+      color: white;
+    }
+
+    table button.eliminar:hover {
+      background-color: #C0392B; /* Rojo más oscuro */
+    }
+
+    /* Estilo para el botón de modificar */
+    table button.modificar {
+      background-color: #3498DB; /* Azul para modificar */
+      color: white;
+    }
+
+    table button.modificar:hover {
+      background-color: #2980B9; /* Azul más oscuro */
+    }
+
+    /* Estilo de las tablas */
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #BDC3C7;
+    }
+
+    th {
+      background-color: #34495E; /* Azul oscuro */
+      color: white;
+    }
+
+    /* Estilo para las filas de la tabla */
+    tbody tr:hover {
+      background-color: #F4F4F4;
+    }
+
+    /* Campos de búsqueda */
+    input[type="text"] {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 4px;
+      border: 1px solid #BDC3C7;
+    }
+</style>
+</head>
+<body>
+  <!-- Barra lateral -->
+  <div class="sidebar">
+    <h2>Sistema de Gestión</h2>
+    <ul>
+      <li id="categorias-btn"><i class="fas fa-cogs"></i> Categorías</li>
+      <li id="productos-btn"><i class="fas fa-box"></i> Productos</li>
+      <li id="clientes-btn"><i class="fas fa-users"></i> Clientes</li>
+      <li id="ventas-btn"><i class="fas fa-shopping-cart"></i> Ventas</li>
+    </ul>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="content">
+    <h2 id="content-title">Gestión de Categorías</h2>
+
+<!-- Sección de categorías -->
+<section id="categorias" class="section" style="display: none;">
+  <h3>Gestión de Categorías</h3>
+  
+  <!-- Buscador -->
+  <input type="text" id="buscar-categoria" placeholder="Buscar categoría..." onkeyup="buscarCategoria()">
+  
+  <!-- Formulario para agregar categoría -->
+  <form id="form-categoria">
+    <input type="text" id="nombre-categoria" placeholder="Nombre de la categoría" required>
+    <input type="text" id="descripcion-categoria" placeholder="Descripción de la categoría" required>
+    <button type="submit">Agregar Categoría</button>
+  </form>
+  
+  <hr>
+  
+  <!-- Tabla/Listado de categorías -->
+  <table id="categorias-lista">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Categorías serán listadas aquí -->
+    </tbody>
+  </table>
+</section>
+
+
+<!-- Sección de productos -->
+<section id="productos" class="section" style="display: none;">
+  <h3>Gestión de Productos</h3>
+  
+  <!-- Buscador -->
+  <input type="text" id="buscar-producto" placeholder="Buscar producto..." onkeyup="buscarProducto()">
+  
+  <!-- Formulario para agregar producto -->
+  <form id="form-producto">
+    <input type="text" id="nombre-producto" placeholder="Nombre del producto" required>
+    <input type="number" id="precio-producto" placeholder="Precio" required>
+    <input type="number" id="cantidad-producto" placeholder="Cantidad en stock" required>
+    
+    <!-- Dropdown para seleccionar la categoría -->
+    <select id="categoria-producto" required>
+      <option value="">Seleccione una categoría</option>
+      <!-- Las categorías se cargarán aquí -->
+    </select>
+    
+    <button type="submit">Agregar Producto</button>
+  </form>
+
+  <hr>
+  
+  <!-- Tabla/Listado de productos -->
+  <table id="productos-lista">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Precio</th>
+        <th>Cantidad</th>
+        <th>Categoría</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Productos serán listados aquí -->
+    </tbody>
+  </table>
+</section>
+
+
+
+ <!-- Sección de clientes -->
+<section id="clientes" class="section" style="display: none;">
+  <h3>Gestión de Clientes</h3>
+  
+  <!-- Buscador -->
+  <input type="text" id="buscar-cliente" placeholder="Buscar cliente..." onkeyup="buscarCliente()">
+  
+  <!-- Formulario para agregar cliente -->
+  <form id="form-cliente">
+    <input type="text" id="nombre-cliente" placeholder="Nombre del cliente" required>
+    <input type="text" id="apellido-cliente" placeholder="Apellido del cliente" required>
+    <input type="email" id="email-cliente" placeholder="Correo electrónico" required>
+    <input type="text" id="telefono-cliente" placeholder="Teléfono" required>
+    <button type="submit">Agregar Cliente</button>
+  </form>
+  
+  <hr>
+  
+  <!-- Tabla/Listado de clientes -->
+  <table id="clientes-lista">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Correo</th>
+        <th>Teléfono</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Clientes serán listados aquí -->
+    </tbody>
+  </table>
+</section>
+
+
+   <!-- Sección de ventas -->
+<section id="ventas" class="section" style="display: none;">
+  <h3>Gestión de Ventas</h3>
+  
+  <!-- Buscador -->
+  <input type="text" id="buscar-venta" placeholder="Buscar venta..." onkeyup="buscarVenta()">
+  
+  <!-- Formulario para agregar venta -->
+  <form id="form-venta">
+    <input type="number" id="producto-venta" placeholder="Producto (ID)" required>
+    <input type="number" id="cantidad-venta" placeholder="Cantidad" required>
+    <input type="date" id="fecha-venta" required>
+    <button type="submit">Registrar Venta</button>
+  </form>
+  
+  <hr>
+  
+  <!-- Tabla/Listado de ventas -->
+  <table id="ventas-lista">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Cantidad</th>
+        <th>Fecha</th>
+        <th>Total</th>
+        <th>Acción</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Ventas serán listadas aquí -->
+    </tbody>
+  </table>
+</section>
+
+  </div>
+
+  <script >
+
+  
+  // Mostrar las secciones al hacer clic en los botones del menú lateral
+document.getElementById('categorias-btn').addEventListener('click', () => {
+  showSection('categorias');
+});
+document.getElementById('productos-btn').addEventListener('click', () => {
+  showSection('productos');
+});
+document.getElementById('clientes-btn').addEventListener('click', () => {
+  showSection('clientes');
+});
+document.getElementById('ventas-btn').addEventListener('click', () => {
+  showSection('ventas');
+});
+// Función para mostrar la sección correspondiente
+function showSection(sectionId) {
+  const sections = document.querySelectorAll('.section');
+  sections.forEach(section => {
+    section.style.display = 'none';
+  });
+
+  const sectionToShow = document.getElementById(sectionId);
+  sectionToShow.style.display = 'block';
+  document.getElementById('content-title').textContent = `Gestión de ${sectionId.charAt(0).toUpperCase() + sectionId.slice(1)}`;
+}
+
+// Función de búsqueda de categorías
+function buscarCategoria() {
+  const filtro = document.getElementById("buscar-categoria").value.toLowerCase();
+  const filas = document.querySelectorAll("#categorias-lista tbody tr");
+
+  filas.forEach(fila => {
+    const nombre = fila.querySelector("td:nth-child(1)").textContent.toLowerCase();
+    if (nombre.includes(filtro)) {
+      fila.style.display = "";
+    } else {
+      fila.style.display = "none";
+    }
+  });
+}
+
+// Función para agregar una categoría
+document.getElementById('form-categoria').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const nombre = document.getElementById('nombre-categoria').value;
+  const descripcion = document.getElementById('descripcion-categoria').value;
+
+  const response = await fetch('http://localhost:3000/categorias', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nombre, descripcion }),
+  });
+
+  if (response.ok) {
+    alert('Categoría agregada');
+    loadCategorias(); // Recargar la lista de categorías
+  }
+});
+
+// Función para cargar las categorías
+async function loadCategorias() {
+  const response = await fetch('http://localhost:3000/categorias');
+  const categorias = await response.json();
+  const lista = document.getElementById('categorias-lista').getElementsByTagName('tbody')[0];
+  lista.innerHTML = '';
+
+  categorias.forEach(categoria => {
+    const row = lista.insertRow();
+    row.innerHTML = `
+      <td>${categoria.nombre}</td>
+      <td>${categoria.descripcion}</td>
+      <td>
+        <button onclick="eliminarCategoria(${categoria.id})">Eliminar</button>
+        <button onclick="editarCategoria(${categoria.id})">Modificar</button>
+      </td>
+    `;
+  });
+}
+
+loadCategorias(); // Cargar las categorías al inicio
+
+// Función para eliminar una categoría
+async function eliminarCategoria(id) {
+  const response = await fetch(`http://localhost:3000/categorias/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (response.ok) {
+    alert('Categoría eliminada');
+    loadCategorias(); // Recargar la lista de categorías
+  }
+}
+
+// Función para editar una categoría
+async function editarCategoria(id) {
+  const categoria = await fetch(`http://localhost:3000/categorias/${id}`);
+  const data = await categoria.json();
+  
+  document.getElementById('nombre-categoria').value = data.nombre;
+  document.getElementById('descripcion-categoria').value = data.descripcion;
+
+  const form = document.getElementById('form-categoria');
+  form.removeEventListener('submit', agregarCategoria);
+  form.addEventListener('submit', async function modificar(e) {
+    e.preventDefault();
+    const nombre = document.getElementById('nombre-categoria').value;
+    const descripcion = document.getElementById('descripcion-categoria').value;
+
+    const response = await fetch(`http://localhost:3000/categorias/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, descripcion }),
+    });
+
+    if (response.ok) {
+      alert('Categoría modificada');
+      loadCategorias(); // Recargar la lista de categorías
+    }
+  });
+}
+
+// Función de búsqueda de productos
+function buscarProducto() {
+  const filtro = document.getElementById("buscar-producto").value.toLowerCase();
+  const filas = document.querySelectorAll("#productos-lista tbody tr");
+
+  filas.forEach(fila => {
+    const nombre = fila.querySelector("td:nth-child(1)").textContent.toLowerCase();
+    if (nombre.includes(filtro)) {
+      fila.style.display = "";
+    } else {
+      fila.style.display = "none";
+    }
+  });
+}
+
+// Función para agregar un producto
+document.getElementById('form-producto').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const nombre = document.getElementById('nombre-producto').value;
+  const precio = document.getElementById('precio-producto').value;
+  const cantidad_stock = document.getElementById('cantidad-producto').value;
+  const categoria_id = document.getElementById('categoria-producto').value;
+
+  const response = await fetch('http://localhost:3000/productos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nombre, precio, cantidad_stock, categoria_id }),
+  });
+
+  if (response.ok) {
+    alert('Producto agregado');
+    loadProductos(); // Recargar la lista de productos
+  }
+});
+
+// Función para cargar los productos
+async function loadProductos() {
+  const response = await fetch('http://localhost:3000/productos');
+  const productos = await response.json();
+  const lista = document.getElementById('productos-lista').getElementsByTagName('tbody')[0];
+  lista.innerHTML = '';
+
+  productos.forEach(producto => {
+    const row = lista.insertRow();
+    row.innerHTML = `
+      <td>${producto.nombre}</td>
+      <td>${producto.precio}</td>
+      <td>${producto.cantidad_stock}</td>
+      <td>${producto.categoria_nombre}</td>
+      <td>
+        <button onclick="eliminarProducto(${producto.id})">Eliminar</button>
+        <button onclick="editarProducto(${producto.id})">Modificar</button>
+      </td>
+    `;
+  });
+}
+
+loadProductos(); // Cargar los productos al inicio
+// Función para eliminar un producto
+async function eliminarProducto(id) {
+  const response = await fetch(`http://localhost:3000/productos/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (response.ok) {
+    alert('Producto eliminado');
+    loadProductos(); // Recargar la lista de productos
+  }
+}
+// Función para modificar un producto
+async function editarProducto(id) {
+  const producto = await fetch(`http://localhost:3000/productos/${id}`);
+  const data = await producto.json();
+  
+  document.getElementById('nombre-producto').value = data.nombre;
+  document.getElementById('precio-producto').value = data.precio;
+  document.getElementById('cantidad-producto').value = data.cantidad_stock;
+  document.getElementById('categoria-producto').value = data.categoria_id;
+
+  // Cambiar el botón de Agregar a Modificar
+  const form = document.getElementById('form-producto');
+  form.removeEventListener('submit', agregarProducto); // Eliminar el listener anterior
+  form.addEventListener('submit', async function modificar(e) {
+    e.preventDefault();
+    const nombre = document.getElementById('nombre-producto').value;
+    const precio = document.getElementById('precio-producto').value;
+    const cantidad_stock = document.getElementById('cantidad-producto').value;
+    const categoria_id = document.getElementById('categoria-producto').value;
+
+    const response = await fetch(`http://localhost:3000/productos/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, precio, cantidad_stock, categoria_id }),
+    });
+
+    if (response.ok) {
+      alert('Producto modificado');
+      loadProductos(); // Recargar la lista de productos
+      // Regresar el formulario a su estado inicial
+      form.removeEventListener('submit', modificar);
+      form.addEventListener('submit', agregarProducto);
+    }
+  });
+}
+
+// Función de búsqueda de clientes
+function buscarCliente() {
+  const filtro = document.getElementById("buscar-cliente").value.toLowerCase();
+  const filas = document.querySelectorAll("#clientes-lista tbody tr");
+
+  filas.forEach(fila => {
+    const nombre = fila.querySelector("td:nth-child(1)").textContent.toLowerCase();
+    if (nombre.includes(filtro)) {
+      fila.style.display = "";
+    } else {
+      fila.style.display = "none";
+    }
+  });
+}
+
+// Función para agregar un cliente
+document.getElementById('form-cliente').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const nombre = document.getElementById('nombre-cliente').value;
+  const apellido = document.getElementById('apellido-cliente').value;
+  const email = document.getElementById('email-cliente').value;
+  const telefono = document.getElementById('telefono-cliente').value;
+
+  const response = await fetch('http://localhost:3000/clientes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nombre, apellido, email, telefono }),
+  });
+
+  if (response.ok) {
+    alert('Cliente agregado');
+    loadClientes(); // Recargar la lista de clientes
+  }
+});
+
+// Función para cargar los clientes
+async function loadClientes() {
+  const response = await fetch('http://localhost:3000/clientes');
+  const clientes = await response.json();
+  const lista = document.getElementById('clientes-lista').getElementsByTagName('tbody')[0];
+  lista.innerHTML = '';
+
+  clientes.forEach(cliente => {
+    const row = lista.insertRow();
+    row.innerHTML = `
+      <td>${cliente.nombre}</td>
+      <td>${cliente.apellido}</td>
+      <td>${cliente.email}</td>
+      <td>${cliente.telefono}</td>
+      <td>
+        <button onclick="eliminarCliente(${cliente.id})">Eliminar</button>
+        <button onclick="editarCliente(${cliente.id})">Modificar</button>
+      </td>
+    `;
+  });
+}
+
+loadClientes(); // Cargar los clientes al inicio
+
+// Función para eliminar un cliente
+async function eliminarCliente(id) {
+  const response = await fetch(`http://localhost:3000/clientes/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (response.ok) {
+    alert('Cliente eliminado');
+    loadClientes(); // Recargar la lista de clientes
+  }
+}
+
+// Función para editar un cliente
+async function editarCliente(id) {
+  const cliente = await fetch(`http://localhost:3000/clientes/${id}`);
+  const data = await cliente.json();
+  
+  document.getElementById('nombre-cliente').value = data.nombre;
+  document.getElementById('apellido-cliente').value = data.apellido;
+  document.getElementById('email-cliente').value = data.email;
+  document.getElementById('telefono-cliente').value = data.telefono;
+
+  const form = document.getElementById('form-cliente');
+  form.removeEventListener('submit', agregarCliente);
+  form.addEventListener('submit', async function modificar(e) {
+    e.preventDefault();
+    const nombre = document.getElementById('nombre-cliente').value;
+    const apellido = document.getElementById('apellido-cliente').value;
+    const email = document.getElementById('email-cliente').value;
+    const telefono = document.getElementById('telefono-cliente').value;
+
+    const response = await fetch(`http://localhost:3000/clientes/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, apellido, email, telefono }),
+    });
+
+    if (response.ok) {
+      alert('Cliente modificado');
+      loadClientes(); // Recargar la lista de clientes
+    }
+  });
+}
+
+
+// Función de búsqueda de ventas
+function buscarVenta() {
+  const filtro = document.getElementById("buscar-venta").value.toLowerCase();
+  const filas = document.querySelectorAll("#ventas-lista tbody tr");
+
+  filas.forEach(fila => {
+    const nombre = fila.querySelector("td:nth-child(1)").textContent.toLowerCase();
+    if (nombre.includes(filtro)) {
+      fila.style.display = "";
+    } else {
+      fila.style.display = "none";
+    }
+  });
+}
+
+// Función para agregar una venta
+document.getElementById('form-venta').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const producto_id = document.getElementById('producto-venta').value;
+  const cantidad = document.getElementById('cantidad-venta').value;
+  const fecha = document.getElementById('fecha-venta').value;
+
+  const response = await fetch('http://localhost:3000/ventas', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ producto_id, cantidad, fecha }),
+  });
+
+  if (response.ok) {
+    alert('Venta registrada');
+    loadVentas(); // Recargar la lista de ventas
+  }
+});
+
+// Función para cargar las ventas
+async function loadVentas() {
+  const response = await fetch('http://localhost:3000/ventas');
+  const ventas = await response.json();
+  const lista = document.getElementById('ventas-lista').getElementsByTagName('tbody')[0];
+  lista.innerHTML = '';
+
+  ventas.forEach(venta => {
+    const row = lista.insertRow();
+    row.innerHTML = `
+      <td>${venta.producto_id}</td>
+      <td>${venta.cantidad}</td>
+      <td>${venta.fecha}</td>
+      <td>${venta.total}</td>
+      <td>
+        <button onclick="eliminarVenta(${venta.id})">Eliminar</button>
+      </td>
+    `;
+  });
+}
+
+loadVentas(); // Cargar las ventas al inicio
+
+// Función para eliminar una venta
+async function eliminarVenta(id) {
+  const response = await fetch(`http://localhost:3000/ventas/${id}`, {
+    method: 'DELETE',
+  });
+
+  if (response.ok) {
+    alert('Venta eliminada');
+    loadVentas(); // Recargar la lista de ventas
+  }
+}
+
+
+  </script>
+</body>
+</html>
