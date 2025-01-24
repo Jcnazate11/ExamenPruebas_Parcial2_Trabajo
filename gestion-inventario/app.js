@@ -1,28 +1,46 @@
 const express = require('express');
 const path = require('path');
+const cors = require('cors');
+require('dotenv').config();
+
 const app = express();
-const port = 3000;
 
-// Middleware para servir archivos estáticos (HTML, CSS, JS)
-app.use(express.static(path.join(__dirname, 'public'))); // Asegúrate de que la carpeta 'public' esté bien configurada
+// Importar rutas
+const categoriaRoutes = require('./routes/categoriaRoutes');
+const productoRoutes = require('./routes/productoRoutes');
+const clienteRoutes = require('./routes/clienteRoutes');
+const ventaRoutes = require('./routes/ventaRoutes');
 
-// Definir ruta para servir el archivo HTML
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Servir un archivo HTML al visitar la raíz
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'app.html'));
 });
 
-// Conexión a la base de datos y otras configuraciones de Express (como rutas, etc.)
-const categoriaRoutes = require('./routes/categoriaRoutes');
-const clienteRoutes = require('./routes/clienteRoutes');
-const productoRoutes = require('./routes/productoRoutes');
-const ventaRoutes = require('./routes/ventaRoutes');
-
+// Usar rutas
 app.use('/categorias', categoriaRoutes);
-app.use('/clientes', clienteRoutes);
 app.use('/productos', productoRoutes);
+app.use('/clientes', clienteRoutes);
 app.use('/ventas', ventaRoutes);
 
-// Levantar el servidor
-app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
+// Manejo de rutas inexistentes
+app.use((req, res) => {
+  res.status(404).json({ message: 'Ruta no encontrada' });
+});
+
+// Middleware de manejo de errores
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Error interno del servidor', error: err.message });
+});
+
+// Configurar el puerto
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
